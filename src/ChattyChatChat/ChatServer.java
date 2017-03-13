@@ -17,7 +17,7 @@ public class ChatServer {
 		System.out.println("S: Server has started");
 		
 		String hostName = "localhost";
-		int portNumber = 9999;
+		int portNumber = 9000;
 		
 		try{
 		ServerSocket ss = new ServerSocket(portNumber);

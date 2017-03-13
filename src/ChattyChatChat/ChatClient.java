@@ -14,7 +14,7 @@ public class ChatClient {
 	public static void main(String[] args) throws IOException
 	{
 		String hostName = "localhost";
-		int portNumber = 9999;
+		int portNumber = 9000;
 		
 		try
 		{
