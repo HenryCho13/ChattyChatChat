@@ -17,7 +17,7 @@ public class ChatServer {
 		System.out.println("S: Server has started");
 		
 		String hostName = "localhost";
-		int portNumber = 9000;
+		int portNumber = 9111;
 		
 		try{
 		ServerSocket ss = new ServerSocket(portNumber);
@@ -42,6 +42,9 @@ public class ChatServer {
 			dout.flush();
 		}
 		
+		din.close();
+		stdIn.close();
+		dout.close();
 		s.close();
 		
 		}

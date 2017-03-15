@@ -14,7 +14,7 @@ public class ChatClient {
 	public static void main(String[] args) throws IOException
 	{
 		String hostName = "localhost";
-		int portNumber = 9000;
+		int portNumber = 9111;
 		
 		try
 		{
@@ -34,8 +34,11 @@ public class ChatClient {
 				msgIn = din.readUTF();
 				System.out.println("S: " + msgIn);
 			}
-			
-			
+		
+		din.close();
+		stdIn.close();
+		dout.close();
+		s.close();	
 			
 		}
 		catch (UnknownHostException e) 
