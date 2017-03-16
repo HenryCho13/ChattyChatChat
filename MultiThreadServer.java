@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.PrintStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.net.ServerSocket;
 
 /*
@@ -16,14 +17,13 @@ public class MultiThreadServer {
   // The client socket.
   private static Socket clientSocket = null;
 
-  // This chat server can accept up to maxClientsCount clients' connections.
-  private static final int maxClientsCount = 10;
-  private static final clientThread[] threads = new clientThread[maxClientsCount];
+  //The chat server can accept multiple client connections 
+  private static ArrayList<clientThread>threads = new ArrayList<clientThread>(10);
 
   public static void main(String args[]) {
 
     // The default port number.
-    int portNumber = 2222;
+    int portNumber = 9347;
     if (args.length < 1) {
       System.out.println("Usage: java MultiThreadChatServerSync <portNumber>\n"
           + "Now using port number=" + portNumber);
@@ -32,7 +32,7 @@ public class MultiThreadServer {
     }
 
     /*
-     * Open a server socket on the portNumber (default 2222). Note that we can
+     * Open a server socket on the portNumber. Note that we can
      * not choose a port less than 1023 if we are not privileged users (root).
      */
     try {
@@ -45,23 +45,21 @@ public class MultiThreadServer {
      * Create a client socket for each connection and pass it to a new client
      * thread.
      */
+    
+    int i = 0;
     while (true) {
       try {
         clientSocket = serverSocket.accept();
-        int i = 0;
-        for (i = 0; i < maxClientsCount; i++) {
-          if (threads[i] == null) {
-            (threads[i] = new clientThread(clientSocket, threads)).start();
-            break;
-          }
+        System.out.println("client socket accepted");
+       
+        threads.add(new clientThread(clientSocket, threads));
+        threads.get(i).start();
+        i++;
+        System.out.println("passed client socket to thread");
+//		break;
+      
         }
-        if (i == maxClientsCount) {
-          PrintStream os = new PrintStream(clientSocket.getOutputStream());
-          os.println("Server too busy. Try later.");
-          os.close();
-          clientSocket.close();
-        }
-      } catch (IOException e) {
+       catch (IOException e) {
         System.out.println(e);
       }
     }
@@ -83,20 +81,19 @@ class clientThread extends Thread {
   private DataInputStream is = null;
   private PrintStream os = null;
   private Socket clientSocket = null;
-  private final clientThread[] threads;
-  private int maxClientsCount;
+//  private final clientThread[] threads;
+//  private int maxClientsCount;
+  private ArrayList<clientThread>threads;
 
-  public clientThread(Socket clientSocket, clientThread[] threads) {
-    this.clientSocket = clientSocket;
-    this.threads = threads;
-    maxClientsCount = threads.length;
-  }
+	public clientThread(Socket clientSocket, ArrayList<clientThread>threads) {
+	this.clientSocket = clientSocket;
+	this.threads = threads;
+	}
 
   @SuppressWarnings("deprecation")
 public void run() {
-    int maxClientsCount = this.maxClientsCount;
-    clientThread[] threads = this.threads;
-
+	 ArrayList<clientThread>threads = this.threads;
+	  
     try {
       /*
        * Create input and output streams for this client.
@@ -117,19 +114,20 @@ public void run() {
       /* Welcome the new the client. */
       os.println("Welcome " + name
           + " to our chat room.\nTo leave enter /quit in a new line.");
+      
       synchronized (this) {
-        for (int i = 0; i < maxClientsCount; i++) {
-          if (threads[i] != null && threads[i] == this) {
-            clientName = "@" + name;
-            break;
-          }
-        }
-        for (int i = 0; i < maxClientsCount; i++) {
-          if (threads[i] != null && threads[i] != this) {
-            threads[i].os.println("*** A new user " + name
+    	  for (int i = 0; i < threads.size(); i++) {
+    		  if (threads.get(i) != null && threads.get(i) == this) {
+                clientName = "@" + name;
+                break;
+    		  }
+    	  }
+    	  for (int i = 0; i < threads.size(); i++) {
+    		  if (threads.get(i) != null && threads.get(i) != this) {
+                threads.get(i).os.println("*** A new user " + name
                 + " entered the chat room !!! ***");
-          }
-        }
+    		  }
+    	  }
       }
       /* Start the conversation. */
       while (true) {
@@ -144,41 +142,41 @@ public void run() {
             words[1] = words[1].trim();
             if (!words[1].isEmpty()) {
               synchronized (this) {
-                for (int i = 0; i < maxClientsCount; i++) {
-                  if (threads[i] != null && threads[i] != this
-                      && threads[i].clientName != null
-                      && threads[i].clientName.equals(words[0])) {
-                    threads[i].os.println("<" + name + "> " + words[1]);
-                    /*
-                     * Echo this message to let the client know the private
-                     * message was sent.
-                     */
-                    this.os.println(">" + name + "> " + words[1]);
-                    break;
-                  }
-                }
+            	  for (int i = 0; i < threads.size(); i++) {
+            		  if (threads.get(i) != null && threads.get(i) != this 
+            				  && threads.get(i).clientName != null 
+            				  && threads.get(i).clientName.equals(words[0])) {
+            			  threads.get(i).os.println("<" + name + "> " + words[1]);
+                        /*
+                        * Echo this message to let the client know the private
+                        * message was sent.
+                        */
+                       this.os.println(">" + name + "> " + words[1]);
+                       break;
+            		  }
+            	  }
               }
             }
           }
         } else {
           /* The message is public, broadcast it to all other clients. */
           synchronized (this) {
-            for (int i = 0; i < maxClientsCount; i++) {
-              if (threads[i] != null && threads[i].clientName != null) {
-                threads[i].os.println("<" + name + "> " + line);
-              }
+            for (int i = 0; i < threads.size(); i++) {
+            	if (threads.get(i) != null && threads.get(i).clientName != null) {
+            		threads.get(i).os.println("<" + name + "> " + line);
+            	}
             }
           }
         }
       }
       synchronized (this) {
-        for (int i = 0; i < maxClientsCount; i++) {
-          if (threads[i] != null && threads[i] != this
-              && threads[i].clientName != null) {
-            threads[i].os.println("*** The user " + name
-                + " is leaving the chat room !!! ***");
-          }
-        }
+    	  for (int i = 0; i < threads.size(); i++) {
+            if (threads.get(i) != null && threads.get(i) != this
+            && threads.get(i).clientName != null) {
+          threads.get(i).os.println("*** The user " + name
+              + " is leaving the chat room !!! ***");
+        	}
+    	  }
       }
       os.println("*** Bye " + name + " ***");
 
@@ -187,11 +185,11 @@ public void run() {
        * could be accepted by the server.
        */
       synchronized (this) {
-        for (int i = 0; i < maxClientsCount; i++) {
-          if (threads[i] == this) {
-            threads[i] = null;
-          }
-        }
+    	  for (int i = 0; i < threads.size(); i++) {
+            if (threads.get(i) == this) {
+            	threads.set(i, null);
+            }
+    	  }
       }
       /*
        * Close the output stream, close the input stream, close the socket.

@@ -23,7 +23,7 @@ public class MultiThreadClient implements Runnable {
   public static void main(String[] args) {
 
     // The default port.
-    int portNumber = 2222;
+    int portNumber = 9347;
     // The default host.
     String host = "localhost";
 
@@ -60,6 +60,7 @@ public class MultiThreadClient implements Runnable {
 
         /* Create a thread to read from the server. */
         new Thread(new MultiThreadClient()).start();
+        System.out.println("thread created to read from server");
         while (!closed) {
           os.println(inputLine.readLine().trim());
         }
