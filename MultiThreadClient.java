@@ -25,7 +25,7 @@ public class MultiThreadClient implements Runnable {
     // The default port.
     int portNumber = 9347;
     // The default host.
-    String host = "localhost";
+    String host = "141.161.133.156";
 
     if (args.length < 2) {
       System.out
