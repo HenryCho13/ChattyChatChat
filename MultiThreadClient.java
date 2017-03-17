@@ -1,7 +1,6 @@
 package ChattyChatChat;
 
-import java.io.DataInputStream;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -13,9 +12,9 @@ public class MultiThreadClient implements Runnable {
   // The client socket
   private static Socket clientSocket = null;
   // The output stream
-  private static PrintStream os = null;
+  private static PrintWriter os = null;
   // The input stream
-  private static DataInputStream is = null;
+  private static BufferedReader is = null;
 
   private static BufferedReader inputLine = null;
   private static boolean closed = false;
@@ -23,9 +22,9 @@ public class MultiThreadClient implements Runnable {
   public static void main(String[] args) {
 
     // The default port.
-    int portNumber = 9347;
+    int portNumber = 9111;
     // The default host.
-    String host = "141.161.133.156";
+    String host = "localhost";
 
     if (args.length < 2) {
       System.out
@@ -42,8 +41,8 @@ public class MultiThreadClient implements Runnable {
     try {
       clientSocket = new Socket(host, portNumber);
       inputLine = new BufferedReader(new InputStreamReader(System.in));
-      os = new PrintStream(clientSocket.getOutputStream());
-      is = new DataInputStream(clientSocket.getInputStream());
+      os = new PrintWriter(clientSocket.getOutputStream(), true);
+      is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
     } catch (UnknownHostException e) {
       System.err.println("Don't know about host " + host);
     } catch (IOException e) {
@@ -81,8 +80,7 @@ public class MultiThreadClient implements Runnable {
    * 
    * @see java.lang.Runnable#run()
    */
-  @SuppressWarnings("deprecation")
-public void run() {
+  public void run() {
     /*
      * Keep on reading from the socket till we receive "Bye" from the
      * server. Once we received that then we want to break.

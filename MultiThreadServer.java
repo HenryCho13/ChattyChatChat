@@ -1,8 +1,9 @@
 package ChattyChatChat;
 
-import java.io.DataInputStream;
-import java.io.PrintStream;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.net.ServerSocket;
@@ -23,7 +24,7 @@ public class MultiThreadServer {
   public static void main(String args[]) {
 
     // The default port number.
-    int portNumber = 9347;
+    int portNumber = 9111;
     if (args.length < 1) {
       System.out.println("Usage: java MultiThreadChatServerSync <portNumber>\n"
           + "Now using port number=" + portNumber);
@@ -78,8 +79,8 @@ public class MultiThreadServer {
 class clientThread extends Thread {
 
   private String clientName = null;
-  private DataInputStream is = null;
-  private PrintStream os = null;
+  private BufferedReader is = null;
+  private PrintWriter os = null;
   private Socket clientSocket = null;
 //  private final clientThread[] threads;
 //  private int maxClientsCount;
@@ -90,16 +91,16 @@ class clientThread extends Thread {
 	this.threads = threads;
 	}
 
-  @SuppressWarnings("deprecation")
-public void run() {
+  public void run() {
 	 ArrayList<clientThread>threads = this.threads;
-	  
+	
     try {
       /*
        * Create input and output streams for this client.
        */
-      is = new DataInputStream(clientSocket.getInputStream());
-      os = new PrintStream(clientSocket.getOutputStream());
+    System.out.println("Testing Runnable");
+      is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+      os = new PrintWriter(clientSocket.getOutputStream());
       String name;
       while (true) {
         os.println("Enter your name.");
