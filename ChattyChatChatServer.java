@@ -1,5 +1,7 @@
 package ChattyChatChat;
 
+
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -23,7 +25,7 @@ public class ChattyChatChatServer {
   public static void main(String args[]) {
 
     // The default port number.
-    int portNumber = 9111;
+    int portNumber = 9001;
     if (args.length < 1) {
       System.out.println("Usage: java ChattyChatChatServerSync <portNumber>\n"
           + "Now using port number=" + portNumber);
@@ -165,7 +167,6 @@ public void run() {
                         * message was sent.
                         */
                        this.os.println(name + ": " + words[2]);
-                       break;
             		  }
             	  }
               }

@@ -1,5 +1,7 @@
 package ChattyChatChat;
 
+
+
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.InputStreamReader;
@@ -23,7 +25,7 @@ public class ChattyChatChatClient implements Runnable {
   public static void main(String[] args) {
 
     // The default port.
-    int portNumber = 9111;
+    int portNumber = 9001;
     // The default host.
     String host = "localhost";
 
